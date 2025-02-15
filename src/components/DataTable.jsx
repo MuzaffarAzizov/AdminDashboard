@@ -22,7 +22,7 @@ const DataTable = ({ data, columns, onEdit, onDelete }) => {
           >
             {columns.map((column) => (
               <td key={column.key} className="px-6 py-4">
-                {column.key === "image_src" ? ( // Ensure this matches the correct field from your API response
+                {column.key === "image_src" ? (
                   <img
                     src={`https://realauto.limsa.uz/api/uploads/images/${
                       item[column.key]

@@ -15,13 +15,33 @@ export const fetchData = async (endpoint) => {
 };
 
 export const createData = async (endpoint, data) => {
-  const response = await api.post(`/${endpoint}`, data);
-  return response.data;
+  try {
+    const response = await api.post(`/${endpoint}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("Server Response:", response); // Log the response
+    return response.data;
+  } catch (error) {
+    console.error("Error creating data:", error);
+    throw error;
+  }
 };
 
 export const updateData = async (endpoint, id, data) => {
-  const response = await api.put(`/${endpoint}/${id}`, data);
-  return response.data;
+  try {
+    const response = await api.put(`/${endpoint}/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Ensure correct content type
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`, // Add authorization header if required
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating data:", error);
+    throw error;
+  }
 };
 
 export const deleteData = async (endpoint, id) => {

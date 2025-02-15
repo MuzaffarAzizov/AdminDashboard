@@ -14,18 +14,24 @@ const Login = () => {
       const response = await axios.post(
         "https://realauto.limsa.uz/api/auth/signin",
         {
-          phone_number: phoneNumber, // Use phone_number instead of email
+          phone_number: phoneNumber,
           password,
         }
       );
-      const { access_token } = response.data;
-      localStorage.setItem("access_token", access_token); // Store token
-      navigate("/header"); // Redirect to Header page
+
+      const access_token = response.data?.data?.tokens?.accessToken?.token; // Correct token path
+
+      if (!access_token) {
+        throw new Error("Token is missing in response");
+      }
+
+      localStorage.setItem("access_token", access_token);
+      navigate("/header");
     } catch (err) {
+      console.error("Login Error:", err);
       setError("Invalid phone number or password");
     }
   };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">

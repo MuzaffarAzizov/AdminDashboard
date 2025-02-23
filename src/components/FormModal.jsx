@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const FormModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData,
-  fields,
-  error,
-}) => {
-  const [formData, setFormData] = useState(initialData || {});
+const FormModal = ({ isOpen, onClose, onSubmit, fields, initialData }) => {
+  const [formData, setFormData] = useState({});
+
+  useEffect(() => {
+    if (initialData) {
+      // Pre-fill the form with initialData
+      setFormData(initialData);
+    } else {
+      // Reset the form when adding a new item
+      setFormData({});
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData({
       ...formData,
-      [name]: files ? files[0] : value,
+      [name]: files ? files[0] : value, // Handle file inputs
     });
   };
 
@@ -26,15 +29,15 @@ const FormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Add Brand</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}{" "}
-        {/* Display error message */}
+        <h3 className="text-xl font-bold mb-4">
+          {initialData ? "Edit Category" : "Add Category"}
+        </h3>
         <form onSubmit={handleSubmit}>
           {fields.map((field) => (
             <div key={field.name} className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium mb-2">
                 {field.label}
               </label>
               {field.type === "file" ? (
@@ -42,7 +45,7 @@ const FormModal = ({
                   type="file"
                   name={field.name}
                   onChange={handleChange}
-                  className="mt-1 block w-full"
+                  className="w-full p-2 border rounded"
                 />
               ) : (
                 <input
@@ -50,24 +53,25 @@ const FormModal = ({
                   name={field.name}
                   value={formData[field.name] || ""}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 border rounded"
+                  required
                 />
               )}
             </div>
           ))}
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+              className="bg-gray-500 text-white py-2 px-4 rounded-md mr-2 hover:bg-gray-600"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
-              Add
+              {initialData ? "Save Changes" : "Save"}
             </button>
           </div>
         </form>

@@ -10,6 +10,8 @@ const Models = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
+  // Brands models come from backend, use options to select brands id
+
   useEffect(() => {
     if (!token) {
       navigate("/login");

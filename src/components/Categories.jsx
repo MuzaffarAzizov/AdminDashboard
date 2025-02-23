@@ -6,6 +6,7 @@ import FormModal from "./FormModal.jsx"; // Import the FormModal component
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null); // Track the category being edited
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
@@ -32,6 +33,12 @@ const Categories = () => {
   };
 
   const handleAdd = () => {
+    setEditingCategory(null); // Reset editing category when adding a new one
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory(category); // Set the category being edited
     setIsModalOpen(true);
   };
 
@@ -49,27 +56,38 @@ const Categories = () => {
       data.append("images", formData.image);
     }
 
-    // Log the FormData to verify its contents
-    for (let [key, value] of data.entries()) {
-      console.log(key, value);
-    }
-
     try {
-      const response = await axios.post(
-        `https://realauto.limsa.uz/api/categories`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("Category created:", response.data);
+      let response;
+      if (editingCategory) {
+        // Update existing category using PUT or PATCH
+        response = await axios.put(
+          `https://realauto.limsa.uz/api/categories/${editingCategory.id}`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        // Create new category
+        response = await axios.post(
+          `https://realauto.limsa.uz/api/categories`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      }
+      console.log("Category saved:", response.data);
       setIsModalOpen(false);
       fetchCategories(); // Refresh the list of categories
     } catch (error) {
-      console.error("Error creating category:", error);
+      console.error("Error saving category:", error);
     }
   };
 
@@ -120,6 +138,7 @@ const Categories = () => {
               <td className="px-6 py-4">
                 <button
                   type="button"
+                  onClick={() => handleEdit(category)} // Pass the category to handleEdit
                   className="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                 >
                   Edit
@@ -136,12 +155,13 @@ const Categories = () => {
         </tbody>
       </table>
 
-      {/* Form Modal for Adding Categories */}
+      {/* Form Modal for Adding/Editing Categories */}
       <FormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
         fields={fields}
+        initialData={editingCategory} // Pass the editing category data to the modal
       />
     </div>
   );
